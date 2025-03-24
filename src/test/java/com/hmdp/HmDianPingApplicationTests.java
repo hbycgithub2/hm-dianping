@@ -2,6 +2,7 @@ package com.hmdp;
 
 import com.hmdp.entity.Shop;
 import com.hmdp.service.impl.ShopServiceImpl;
+import com.hmdp.service.impl.UserServiceImpl;
 import com.hmdp.utils.CactheClient;
 import com.hmdp.utils.RedisIdWorker;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,9 @@ class HmDianPingApplicationTests {
     private ShopServiceImpl shopService;
     @Resource
     private RedisIdWorker redisIdWorker;
+    @Resource
+    private UserServiceImpl userServiceImpl;
+
 
     @Test
     void testSaveShop() throws InterruptedException {
@@ -53,4 +57,10 @@ class HmDianPingApplicationTests {
         System.out.println("time = " + (end - begin));
 
     }
+
+    @Test
+    public void toke(){
+        userServiceImpl.token();
+    }
+
 }

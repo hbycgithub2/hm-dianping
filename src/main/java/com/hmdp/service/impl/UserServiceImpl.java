@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.hmdp.utils.RedisConstants.*;
@@ -40,7 +38,6 @@ import static com.hmdp.utils.SystemConstants.USER_NICK_NAME_PREFIX;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
     @Override
     public Result sedCode(String phone, HttpSession session) {
         // 1.校验手机号
@@ -101,6 +98,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
         //TODO 8.返回token
         return Result.ok(token);
+    }
+
+
+    public void token() {
+        // 1. 构建查询条件（选择 phone 字段）
+      /*  LambdaQueryWrapper< User > queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(User::getPhone);
+
+// 2. 执行查询并提取 phone 字段
+        List<User> userList = iUserService.list(queryWrapper);
+        List<String> phoneList = userList.stream()
+                .map(User::getPhone)
+                .collect(Collectors.toList());*/
+        List<User> userList = list();
+        for (User user : userList) {
+            // TODO 7.保存用户信息到redis中
+            // 7.1.随机生成token，作为登录令牌
+            String token = UUID.randomUUID().toString();
+            // TODO 7.2.将User对象转为Hash存储
+            UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+            Map<String, Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(), CopyOptions.create().setIgnoreNullValue(true).setFieldValueEditor((fieldName, fieldValue) -> fieldValue.toString()));
+            // TODO 7.3.存储
+            String tokenKey = LOGIN_USER_KEY + token;
+            System.out.println(tokenKey);
+            stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
+            //7.4 设置token有效期
+            stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
+        }
     }
 
     private User createUserWithPhone(String phone) {
