@@ -121,4 +121,9 @@ public class UserController {
         List<Blog> records = page.getRecords();
         return Result.ok(records);
     }
+
+    @PostMapping("/sign")
+    public Result sign() {
+        return userService.sign();
+    }
 }
